@@ -160,14 +160,14 @@ void exibir_todas_palavras(NoTrie *raiz) {
 bool entrada_valida(const char *str) {
 	while (*str) {
 		if (!islower((unsigned char)*str)) {
-			// Found a character that is not a lowercase letter
+			// Encontrado um caractere que não é uma letra minúscula
 			return false;
 		}
 
 		str++;
 	}
 	
-	// All characters are lowercase letters
+	// Todos os caracteres são letras minúsculas
 	return true;
 }
 
