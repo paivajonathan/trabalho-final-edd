@@ -54,8 +54,8 @@ void inserir_palavra(NoTrie *raiz, const char *palavra) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_palavra = strlen(palavra);
 
-	if (tamanho_palavra > MAX_CARACTERES) {
-		printf("Tamanho máximo para inserir novas palavras é de %d caracteres.\n", MAX_CARACTERES);
+	if (tamanho_palavra > MAX_CARACTERES - 1) {
+		printf("Tamanho máximo para inserir novas palavras é de %d caracteres.\n", MAX_CARACTERES - 1);
 		return;
 	}
 
@@ -290,9 +290,9 @@ void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 }
 
 void existe_palavra_interface(NoTrie *raiz) {
-	printf("\nInsira uma palavra para verificar se existe no dicionario:\n");
-	
 	char entrada[MAX_CARACTERES];
+	
+	printf("\nInsira uma palavra para verificar se existe no dicionario:\n");
 
 	do {
 		printf("> ");
