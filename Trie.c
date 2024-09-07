@@ -127,6 +127,27 @@ void destruir_trie(NoTrie *raiz) {
 /* ==================== OPERAÇÕES BÁSICAS ==================== */
 
 /* ==================== APLICAÇÕES REAIS ==================== */
+NoTrie *criar_trie(void) {
+	NoTrie *raiz = criar_no();
+
+	const char *palavras[] = {
+		"abacaxi", "barata", "caderno", "dente", "elefante", "foco", "gato", "hoquei", "ilha", "jogo",
+		"kiwi", "livro", "mapa", "nuvem", "ovo", "pedra", "queijo", "rato", "sapo", "telefone",
+		"uva", "vela", "xaxim", "zebra", "amigo", "bola", "cao", "dado", "escada", "faca",
+		"gelo", "horta", "jujuba", "kilo", "lua", "manteiga", "nado", "ovelha", "pato", "rosto",
+		"sol", "teto", "vaca", "zipe", "amendoim", "biscoito", "cabelo", "escova", "foca", "lapis",
+		"mar", "olho", "pipa", "quadro", "sopa", "tomate", "urso", "vento", "abajur", "coracao",
+		"dolar", "estrela", "fruta", "jardim", "leao", "mochila", "nave", "quente", "rua", "tartaruga",
+		"yeti", "bolo", "iate"
+	};
+
+	int qtd_palavras = sizeof(palavras) / sizeof(palavras[0]);
+
+	for (int i = 0; i < qtd_palavras; i++)
+		inserir_palavra(raiz, palavras[i]);
+
+	return raiz;
+}
 
 void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel) {
 	// Caso tenha chegado em um nó marcado como fim de palavra,
@@ -186,9 +207,7 @@ void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo) {
 	coletar_palavras(no_prefixo, prefixo_temporario, tamanho_prefixo);
 }
 
-void exibir_todas_palavras(NoTrie *raiz) {
-	printf("\nExibindo todas as palavras registradas:\n\n");
-	
+void exibir_todas_palavras(NoTrie *raiz) {	
 	char prefixo_temporario[MAX_CARACTERES];
 	coletar_palavras(raiz, prefixo_temporario, 0);
 }
@@ -196,13 +215,6 @@ void exibir_todas_palavras(NoTrie *raiz) {
 /* ==================== APLICAÇÕES REAIS ==================== */
 
 /* ==================== UTILITÁRIOS ==================== */
-
-void exibir_menu(void) {
-	printf("\n======================================================================");
-	printf("\nDigite um prefixo, para descobrir as suas palavras possiveis.\n\n");
-	printf("Regras:\n- Digite apenas letras minusculas.\n- Para encerrar o programa digite 0.\n");
-	printf("======================================================================\n\n");
-}
 
 bool entrada_valida(const char *str) {
 	while (*str) {
@@ -213,47 +225,183 @@ bool entrada_valida(const char *str) {
 	return true;
 }
 
+void limpar_buffer(void) {
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF);
+}
+
+void aguardar_usuario(void) {
+	limpar_buffer();
+	printf("Pressione enter para continuar...\n");
+	getchar();
+}
+
 /* ==================== UTILITÁRIOS ==================== */
 
-int main(void)
-{
-	NoTrie *raiz = criar_no();
+/* ==================== INTERFACES ==================== */
+void exibir_menu(void) {
+	printf("======================================================================\n");
+	printf("Opcoes:\n\n");
 
-	const char *palavras[] = {
-		"abacaxi", "barata", "caderno", "dente", "elefante", "foco", "gato", "hoquei", "ilha", "jogo",
-		"kiwi", "livro", "mapa", "nuvem", "ovo", "pedra", "queijo", "rato", "sapo", "telefone",
-		"uva", "vela", "xaxim", "zebra", "amigo", "bola", "cao", "dado", "escada", "faca",
-		"gelo", "horta", "jujuba", "kilo", "lua", "manteiga", "nado", "ovelha", "pato", "rosto",
-		"sol", "teto", "vaca", "zipe", "amendoim", "biscoito", "cabelo", "escova", "foca", "lapis",
-		"mar", "olho", "pipa", "quadro", "sopa", "tomate", "urso", "vento", "abajur", "coracao",
-		"dolar", "estrela", "fruta", "jardim", "leao", "mochila", "nave", "quente", "rua", "tartaruga",
-		"yeti", "bolo", "iate"
-	};
-	int tamanho = sizeof(palavras) / sizeof(palavras[0]);
-
-	for (int i = 0; i < tamanho; i++)
-		inserir_palavra(raiz, palavras[i]);
-
-	exibir_todas_palavras(raiz);	
-	exibir_menu();
+	printf("- 1: Exibir todas as palavras\n");
+	printf("- 2: Exibir todas as palavras com um certo prefixo\n");
+	printf("- 3: Verificar se uma palavra existe no sistema\n");
+	printf("- 4: Inserir uma nova palavra no sistema\n");
+	printf("- 5: Remover uma palavra do sistema\n");
+	printf("- 0: Encerrar o sistema ou encerrar uma operacao\n\n");
 	
+	printf("Sao permitidas apenas palavras:\n");
+	printf("- Minusculas.\n");
+	printf("- Sem acentos.\n");
+	printf("- Sem espacos.\n");
+	printf("======================================================================\n");
+}
+
+void exibir_todas_palavras_interface(NoTrie *raiz) {
+	printf("\nExibindo todas as palavras cadastradas:\n\n");
+	exibir_todas_palavras(raiz);
+	aguardar_usuario();
+}
+
+void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 	char entrada[MAX_CARACTERES];
-	while (true)
-	{
+	
+	printf("Digite um prefixo, para descobrir as suas palavras possiveis.\n\n");	
+	
+	while (true) {
 		printf("> ");
 		scanf("%s", entrada);
 
 		if (!entrada_valida(entrada)) {
 			if (entrada[0] == '0') {
-				printf("Encerrando programa...\n");
+				printf("Retornando ao menu...\n");
 				break;
 			}
-			printf("Tente novamente...\n");
+
+			printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 			continue;
 		}
 
 		exibir_palavras_com_prefixo(raiz, entrada);
 		printf("\n");
+	}
+}
+
+void existe_palavra_interface(NoTrie *raiz) {
+	printf("Insira uma palavra para verificar se existe no dicionario:\n\n");
+	
+	char entrada[MAX_CARACTERES];
+
+	printf("> ");
+	scanf("%s", entrada);
+
+	while (!entrada_valida(entrada)) {
+		if (entrada[0] == '0') {
+			printf("Retornando ao menu...\n");
+			return;
+		}
+
+		printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+	}
+
+	bool existe = existe_palavra(raiz, entrada);
+	
+	printf("A palavra %s dicionario\n", existe ? "esta" : "nao existe");
+	aguardar_usuario();
+}
+
+void inserir_palavra_interface(NoTrie *raiz) {
+	char entrada[MAX_CARACTERES];
+	
+	printf("Insira uma palavra que voce deseja no dicionario:\n\n");
+
+	printf("> ");
+	scanf("%s", entrada);
+
+	while (!entrada_valida(entrada)) {
+		if (entrada[0] == '0') {
+			printf("Retornando ao menu...\n");
+			return;
+		}
+
+		printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+	}
+
+	inserir_palavra(raiz, entrada);
+	
+	printf("Palavra cadastrada com sucesso.\n");
+	aguardar_usuario();
+}
+
+void remover_palavra_interface(NoTrie **raiz) {
+	char entrada[MAX_CARACTERES];
+	
+	printf("Insira uma palavra para remove-la do dicionario, caso exista:\n\n");
+
+	printf("> ");
+	scanf("%s", entrada);
+
+	while (!entrada_valida(entrada)) {
+		if (entrada[0] == '0') {
+			printf("Retornando ao menu...\n");
+			return;
+		}
+	
+		printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+	}
+
+	bool existe = existe_palavra(*raiz, entrada);
+
+	if (!existe) {
+		printf("Palavra nao esta no dicionario, logo nao e possivel remove-la.\n");
+		return;
+	}
+
+	remover_palavra(raiz, entrada);
+
+	printf("Palavra removida com sucesso.\n");
+	aguardar_usuario();
+}
+
+/* ==================== INTERFACES ==================== */
+
+int main(void)
+{
+	NoTrie *raiz = criar_trie();
+	int opcao = -1;
+
+	while (true) {
+		exibir_menu();
+		
+		printf("> ");
+		scanf("%d", &opcao);
+
+		if (opcao == 0) {
+			printf("Encerrando programa...\n");
+			break;
+		}
+
+		switch (opcao) {
+			case 1:
+				exibir_todas_palavras_interface(raiz);
+				break;
+			case 2:
+				exibir_palavras_com_prefixo_interface(raiz);
+				break;
+			case 3:
+				existe_palavra_interface(raiz);
+				break;
+			case 4:
+				inserir_palavra_interface(raiz);
+				break;
+			case 5:
+				remover_palavra_interface(&raiz);
+				break;
+			default:
+				printf("Digite uma opcao valida...\n");
+				opcao = -1;
+				break;
+		}
 	}
 
 	destruir_trie(raiz);
