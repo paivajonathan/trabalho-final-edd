@@ -79,6 +79,28 @@ void inserir_palavra(NoTrie *raiz, const char *palavra) {
 	no_atual->fim_palavra = true;
 }
 
+NoTrie *criar_trie(void) {
+	NoTrie *raiz = criar_no();
+
+	const char *palavras[] = {
+		"abacaxi", "barata", "caderno", "dente", "elefante", "foco", "gato", "hoquei", "ilha", "jogo",
+		"kiwi", "livro", "mapa", "nuvem", "ovo", "pedra", "queijo", "rato", "sapo", "telefone",
+		"uva", "vela", "xaxim", "zebra", "amigo", "bola", "cao", "dado", "escada", "faca",
+		"gelo", "horta", "jujuba", "kilo", "lua", "manteiga", "nado", "ovelha", "pato", "rosto",
+		"sol", "teto", "vaca", "zipe", "amendoim", "biscoito", "cabelo", "escova", "foca", "lapis",
+		"mar", "olho", "pipa", "quadro", "sopa", "tomate", "urso", "vento", "abajur", "coracao",
+		"dolar", "estrela", "fruta", "jardim", "leao", "mochila", "nave", "quente", "rua", "tartaruga",
+		"yeti", "bolo", "iate"
+	};
+
+	int qtd_palavras = sizeof(palavras) / sizeof(palavras[0]);
+
+	for (int i = 0; i < qtd_palavras; i++)
+		inserir_palavra(raiz, palavras[i]);
+
+	return raiz;
+}
+
 bool possui_filhos(NoTrie *raiz) {
 	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
 		if (raiz->filhos[i] != NULL)
@@ -127,27 +149,6 @@ void destruir_trie(NoTrie *raiz) {
 /* ==================== OPERAÇÕES BÁSICAS ==================== */
 
 /* ==================== APLICAÇÕES REAIS ==================== */
-NoTrie *criar_trie(void) {
-	NoTrie *raiz = criar_no();
-
-	const char *palavras[] = {
-		"abacaxi", "barata", "caderno", "dente", "elefante", "foco", "gato", "hoquei", "ilha", "jogo",
-		"kiwi", "livro", "mapa", "nuvem", "ovo", "pedra", "queijo", "rato", "sapo", "telefone",
-		"uva", "vela", "xaxim", "zebra", "amigo", "bola", "cao", "dado", "escada", "faca",
-		"gelo", "horta", "jujuba", "kilo", "lua", "manteiga", "nado", "ovelha", "pato", "rosto",
-		"sol", "teto", "vaca", "zipe", "amendoim", "biscoito", "cabelo", "escova", "foca", "lapis",
-		"mar", "olho", "pipa", "quadro", "sopa", "tomate", "urso", "vento", "abajur", "coracao",
-		"dolar", "estrela", "fruta", "jardim", "leao", "mochila", "nave", "quente", "rua", "tartaruga",
-		"yeti", "bolo", "iate"
-	};
-
-	int qtd_palavras = sizeof(palavras) / sizeof(palavras[0]);
-
-	for (int i = 0; i < qtd_palavras; i++)
-		inserir_palavra(raiz, palavras[i]);
-
-	return raiz;
-}
 
 void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel) {
 	// Caso tenha chegado em um nó marcado como fim de palavra,
