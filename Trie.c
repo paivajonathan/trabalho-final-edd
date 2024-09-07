@@ -153,6 +153,7 @@ void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo)
 
 void exibir_todas_palavras(NoTrie *raiz) {
 	printf("\nExibindo todas as palavras registradas:\n\n");
+	
 	char prefixo_temporario[MAX_CARACTERES];
 	coletar_palavras(raiz, prefixo_temporario, 0);
 }
@@ -178,6 +179,51 @@ void exibir_menu(void) {
 	printf("======================================================================\n\n");
 }
 
+bool possui_filhos(NoTrie *raiz) {
+	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
+		if (raiz->filhos[i] != NULL)
+			return true;
+	}
+	return false;
+}
+
+NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, int nivel) {
+	if (raiz == NULL)
+		return NULL;
+
+	if (nivel == strlen(chave)) {
+		raiz->fim_palavra = false;
+	} else {
+		int indice = chave[nivel] - 'a';
+		raiz->filhos[indice] = remover_palavra_interno(raiz->filhos[indice], chave, nivel + 1); 
+	}
+
+	if (raiz->fim_palavra || possui_filhos(raiz))
+		return raiz;
+	
+	free(raiz);
+	raiz = NULL;
+	return raiz;
+}
+
+void remover_palavra(NoTrie **raiz, const char *chave) {
+	*raiz = remover_palavra_interno(*raiz, chave, 0);
+}
+
+void destruir_trie(NoTrie *raiz) {
+	if (raiz == NULL)
+		return;
+
+	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
+		if (raiz->filhos[i] == NULL)
+			continue;
+		destruir_trie(raiz->filhos[i]);
+	}
+
+	free(raiz);
+	raiz = NULL;
+}
+
 int main(void)
 {
 	NoTrie *raiz = criar_no();
@@ -197,7 +243,7 @@ int main(void)
 	for (int i = 0; i < tamanho; i++)
 		inserir_palavra(raiz, palavras[i]);
 
-	exibir_todas_palavras(raiz);
+	exibir_todas_palavras(raiz);	
 	exibir_menu();
 	
 	char entrada[MAX_CARACTERES];
@@ -218,4 +264,6 @@ int main(void)
 		exibir_palavras_com_prefixo(raiz, entrada);
 		printf("\n");
 	}
+
+	destruir_trie(raiz);
 }
