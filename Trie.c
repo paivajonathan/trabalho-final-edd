@@ -12,6 +12,8 @@ typedef struct NoTrie {
 	bool fim_palavra;
 } NoTrie;
 
+/* ==================== OPERAÇÕES BÁSICAS ==================== */
+
 NoTrie *criar_no(void) {
 	NoTrie *no = malloc(sizeof(NoTrie));
 
@@ -48,11 +50,89 @@ bool existe_palavra(NoTrie *raiz, const char *palavra) {
 	return no_atual->fim_palavra;
 }
 
-void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t tamanho) {
+void inserir_palavra(NoTrie *raiz, const char *palavra) {
+	NoTrie *no_atual = raiz;
+	size_t tamanho_palavra = strlen(palavra);
+
+	if (tamanho_palavra > MAX_CARACTERES) {
+		printf("Tamanho máximo para inserir novas palavras é de %d caracteres.\n", MAX_CARACTERES);
+		return;
+	}
+
+	// Percorre para cada caractere da palavra
+	for (size_t i = 0; i < tamanho_palavra; i++) {
+		// Descobre o 'indice' que representa a letra atual da palavra
+		int indice_palavra = palavra[i] - 'a';
+
+		// Caso esse indice nos filhos do nó atual esteja vazio, criamos ele
+		if (no_atual->filhos[indice_palavra] == NULL) {
+			// Nó para representar cada letra da palavra
+			no_atual->filhos[indice_palavra] = criar_no();
+		}
+
+		// O nó atual passa a ser esse índice recém-criado
+		no_atual = no_atual->filhos[indice_palavra];
+	}
+
+	// Marca o nó atual como contendo uma palavra inteira,
+	// do caminho da raíz até ele
+	no_atual->fim_palavra = true;
+}
+
+bool possui_filhos(NoTrie *raiz) {
+	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
+		if (raiz->filhos[i] != NULL)
+			return true;
+	}
+	return false;
+}
+
+NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, size_t nivel) {
+	if (raiz == NULL)
+		return NULL;
+
+	if (nivel == strlen(chave)) {
+		raiz->fim_palavra = false;
+	} else {
+		int indice = chave[nivel] - 'a';
+		raiz->filhos[indice] = remover_palavra_interno(raiz->filhos[indice], chave, nivel + 1); 
+	}
+
+	if (raiz->fim_palavra || possui_filhos(raiz))
+		return raiz;
+	
+	free(raiz);
+	raiz = NULL;
+	return raiz;
+}
+
+void remover_palavra(NoTrie **raiz, const char *chave) {
+	*raiz = remover_palavra_interno(*raiz, chave, 0);
+}
+
+void destruir_trie(NoTrie *raiz) {
+	if (raiz == NULL)
+		return;
+
+	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
+		if (raiz->filhos[i] == NULL)
+			continue;
+		destruir_trie(raiz->filhos[i]);
+	}
+
+	free(raiz);
+	raiz = NULL;
+}
+
+/* ==================== OPERAÇÕES BÁSICAS ==================== */
+
+/* ==================== APLICAÇÕES REAIS ==================== */
+
+void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel) {
 	// Caso tenha chegado em um nó marcado como fim de palavra,
 	// exibe a palavra que foi coletada até ele
 	if (no_atual->fim_palavra) {
-		prefixo_temporario[tamanho] = '\0';
+		prefixo_temporario[nivel] = '\0';
 		printf("%s\n", prefixo_temporario);
 	}
 
@@ -63,10 +143,10 @@ void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t tamanho
 
 		// Transforma a posição de volta na letra original,
 		// para ser possível exibi-la
-		prefixo_temporario[tamanho] = i + 'a';
+		prefixo_temporario[nivel] = i + 'a';
 
 		// Chama a função novamente, passando esse nó filho
-		coletar_palavras(no_atual->filhos[i], prefixo_temporario, tamanho + 1);
+		coletar_palavras(no_atual->filhos[i], prefixo_temporario, nivel + 1);
 	}
 }
 
@@ -113,79 +193,9 @@ void exibir_todas_palavras(NoTrie *raiz) {
 	coletar_palavras(raiz, prefixo_temporario, 0);
 }
 
-void inserir_palavra(NoTrie *raiz, const char *palavra) {
-	NoTrie *no_atual = raiz;
-	size_t tamanho_palavra = strlen(palavra);
+/* ==================== APLICAÇÕES REAIS ==================== */
 
-	if (tamanho_palavra > MAX_CARACTERES) {
-		printf("Tamanho máximo para inserir novas palavras é de %d caracteres.\n", MAX_CARACTERES);
-		return;
-	}
-
-	// Percorre para cada caractere da palavra
-	for (size_t i = 0; i < tamanho_palavra; i++) {
-		// Descobre o 'indice' que representa a letra atual da palavra
-		int indice_palavra = palavra[i] - 'a';
-
-		// Caso esse indice nos filhos do nó atual esteja vazio, criamos ele
-		if (no_atual->filhos[indice_palavra] == NULL) {
-			// Nó para representar cada letra da palavra
-			no_atual->filhos[indice_palavra] = criar_no();
-		}
-
-		// O nó atual passa a ser esse índice recém-criado
-		no_atual = no_atual->filhos[indice_palavra];
-	}
-
-	// Marca o nó atual como contendo uma palavra inteira,
-	// do caminho da raíz até ele
-	no_atual->fim_palavra = true;
-}
-
-bool possui_filhos(NoTrie *raiz) {
-	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
-		if (raiz->filhos[i] != NULL)
-			return true;
-	}
-	return false;
-}
-
-NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, int nivel) {
-	if (raiz == NULL)
-		return NULL;
-
-	if (nivel == strlen(chave)) {
-		raiz->fim_palavra = false;
-	} else {
-		int indice = chave[nivel] - 'a';
-		raiz->filhos[indice] = remover_palavra_interno(raiz->filhos[indice], chave, nivel + 1); 
-	}
-
-	if (raiz->fim_palavra || possui_filhos(raiz))
-		return raiz;
-	
-	free(raiz);
-	raiz = NULL;
-	return raiz;
-}
-
-void remover_palavra(NoTrie **raiz, const char *chave) {
-	*raiz = remover_palavra_interno(*raiz, chave, 0);
-}
-
-void destruir_trie(NoTrie *raiz) {
-	if (raiz == NULL)
-		return;
-
-	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
-		if (raiz->filhos[i] == NULL)
-			continue;
-		destruir_trie(raiz->filhos[i]);
-	}
-
-	free(raiz);
-	raiz = NULL;
-}
+/* ==================== UTILITÁRIOS ==================== */
 
 void exibir_menu(void) {
 	printf("\n======================================================================");
@@ -202,6 +212,8 @@ bool entrada_valida(const char *str) {
 	}
 	return true;
 }
+
+/* ==================== UTILITÁRIOS ==================== */
 
 int main(void)
 {
