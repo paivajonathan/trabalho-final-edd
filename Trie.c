@@ -7,14 +7,12 @@
 #define MAX_CARACTERES 256
 #define TAMANHO_ALFABETO 26
 
-typedef struct NoTrie
-{
+typedef struct NoTrie {
 	struct NoTrie *filhos[TAMANHO_ALFABETO];
 	bool fim_palavra;
 } NoTrie;
 
-NoTrie *criar_no(void)
-{
+NoTrie *criar_no(void) {
 	NoTrie *no = malloc(sizeof(NoTrie));
 
 	if (no == NULL)
@@ -24,30 +22,25 @@ NoTrie *criar_no(void)
 		no->filhos[i] = NULL;
 
 	no->fim_palavra = false;
-
 	return no;
 }
 
-void inserir_palavra(NoTrie *raiz, const char *palavra)
-{
+void inserir_palavra(NoTrie *raiz, const char *palavra) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_palavra = strlen(palavra);
 
-	if (tamanho_palavra > MAX_CARACTERES)
-	{
+	if (tamanho_palavra > MAX_CARACTERES) {
 		printf("Tamanho máximo para inserir novas palavras é de %d caracteres.\n", MAX_CARACTERES);
 		return;
 	}
 
 	// Percorre para cada caractere da palavra
-	for (size_t i = 0; i < tamanho_palavra; i++)
-	{
+	for (size_t i = 0; i < tamanho_palavra; i++) {
 		// Descobre o 'indice' que representa a letra atual da palavra
 		int indice_palavra = palavra[i] - 'a';
 
 		// Caso esse indice nos filhos do nó atual esteja vazio, criamos ele
-		if (no_atual->filhos[indice_palavra] == NULL)
-		{
+		if (no_atual->filhos[indice_palavra] == NULL) {
 			// Nó para representar cada letra da palavra
 			no_atual->filhos[indice_palavra] = criar_no();
 		}
@@ -61,13 +54,11 @@ void inserir_palavra(NoTrie *raiz, const char *palavra)
 	no_atual->fim_palavra = true;
 }
 
-bool existe_palavra(NoTrie *raiz, const char *palavra)
-{
+bool existe_palavra(NoTrie *raiz, const char *palavra) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_palavra = strlen(palavra);
 
-	for (size_t i = 0; i < tamanho_palavra; i++)
-	{
+	for (size_t i = 0; i < tamanho_palavra; i++) {
 		// Calcula o indice da letra, número entre 0 - 25.
 		int indice_palavra = palavra[i] - 'a';
 
@@ -86,13 +77,11 @@ bool existe_palavra(NoTrie *raiz, const char *palavra)
 	return no_atual->fim_palavra;
 }
 
-NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo)
-{
+NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_prefixo = strlen(prefixo);
 
-	for (size_t i = 0; i < tamanho_prefixo; i++)
-	{
+	for (size_t i = 0; i < tamanho_prefixo; i++) {
 		int indice_letra = prefixo[i] - 'a';
 
 		if (no_atual->filhos[indice_letra] == NULL)
@@ -104,18 +93,15 @@ NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo)
 	return no_atual;
 }
 
-void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t tamanho)
-{
+void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t tamanho) {
 	// Caso tenha chegado em um nó marcado como fim de palavra,
 	// exibe a palavra que foi coletada até ele
-	if (no_atual->fim_palavra)
-	{
+	if (no_atual->fim_palavra) {
 		prefixo_temporario[tamanho] = '\0';
 		printf("%s\n", prefixo_temporario);
 	}
 
-	for (int i = 0; i < TAMANHO_ALFABETO; i++)
-	{
+	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
 		// Caso não exista um nó nessa posição, ignora a posição
 		if (no_atual->filhos[i] == NULL)
 			continue;
@@ -129,12 +115,10 @@ void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t tamanho
 	}
 }
 
-void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo)
-{
+void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo) {
 	NoTrie *no_prefixo = encontrar_no(raiz, prefixo);
 
-	if (no_prefixo == NULL)
-	{
+	if (no_prefixo == NULL) {
 		printf("nao foram encontradas palavras.\n");
 		return;
 	}
@@ -160,23 +144,11 @@ void exibir_todas_palavras(NoTrie *raiz) {
 
 bool entrada_valida(const char *str) {
 	while (*str) {
-		if (!islower((unsigned char)*str)) {
-			// Encontrado um caractere que não é uma letra minúscula
+		if (!islower((unsigned char)*str))
 			return false;
-		}
-
 		str++;
 	}
-	
-	// Todos os caracteres são letras minúsculas
 	return true;
-}
-
-void exibir_menu(void) {
-	printf("\n======================================================================");
-	printf("\nDigite um prefixo, para descobrir as suas palavras possiveis.\n\n");
-	printf("Regras:\n- Digite apenas letras minusculas.\n- Para encerrar o programa digite 0.\n");
-	printf("======================================================================\n\n");
 }
 
 bool possui_filhos(NoTrie *raiz) {
@@ -222,6 +194,13 @@ void destruir_trie(NoTrie *raiz) {
 
 	free(raiz);
 	raiz = NULL;
+}
+
+void exibir_menu(void) {
+	printf("\n======================================================================");
+	printf("\nDigite um prefixo, para descobrir as suas palavras possiveis.\n\n");
+	printf("Regras:\n- Digite apenas letras minusculas.\n- Para encerrar o programa digite 0.\n");
+	printf("======================================================================\n\n");
 }
 
 int main(void)
