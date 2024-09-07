@@ -267,19 +267,20 @@ void exibir_todas_palavras_interface(NoTrie *raiz) {
 void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 	char entrada[MAX_CARACTERES];
 	
-	printf("Digite um prefixo, para descobrir as suas palavras possiveis.\n\n");	
+	printf("\nDigite um prefixo, para descobrir as suas palavras possiveis.\n");	
 	
 	while (true) {
 		printf("> ");
-		scanf("%s", entrada);
+		scanf(" %255[^\n]s", entrada);
 
 		if (!entrada_valida(entrada)) {
 			if (entrada[0] == '0') {
-				printf("Retornando ao menu...\n");
-				break;
+				printf("\nRetornando ao menu...\n");
+				getchar();
+				return;
 			}
 
-			printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+			printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 			continue;
 		}
 
@@ -289,26 +290,32 @@ void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 }
 
 void existe_palavra_interface(NoTrie *raiz) {
-	printf("Insira uma palavra para verificar se existe no dicionario:\n\n");
+	printf("\nInsira uma palavra para verificar se existe no dicionario:\n");
 	
 	char entrada[MAX_CARACTERES];
 
-	printf("> ");
-	scanf("%s", entrada);
+	do {
+		printf("> ");
+		
+		scanf(" %255[^\n]s", entrada);
+		limpar_buffer();
 
-	while (!entrada_valida(entrada)) {
+		if (entrada_valida(entrada))
+			break;
+	
 		if (entrada[0] == '0') {
-			printf("Retornando ao menu...\n");
+			printf("\nRetornando ao menu...\n");
+			getchar();
 			return;
 		}
 
-		printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
-	}
+		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+	} while (true);
 
 	bool existe = existe_palavra(raiz, entrada);
 	
 	printf("A palavra %s dicionario\n", existe ? "esta" : "nao existe");
-	aguardar_usuario();
+	getchar();
 }
 
 void inserir_palavra_interface(NoTrie *raiz) {
@@ -316,22 +323,28 @@ void inserir_palavra_interface(NoTrie *raiz) {
 	
 	printf("Insira uma palavra que voce deseja no dicionario:\n\n");
 
-	printf("> ");
-	scanf("%s", entrada);
+	do {
+		printf("> ");
+		
+		scanf(" %255[^\n]s", entrada);
+		limpar_buffer();
 
-	while (!entrada_valida(entrada)) {
+		if (entrada_valida(entrada))
+			break;
+	
 		if (entrada[0] == '0') {
-			printf("Retornando ao menu...\n");
+			printf("\nRetornando ao menu...\n");
+			getchar();
 			return;
 		}
 
-		printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
-	}
+		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+	} while (true);
 
 	inserir_palavra(raiz, entrada);
 	
 	printf("Palavra cadastrada com sucesso.\n");
-	aguardar_usuario();
+	getchar();
 }
 
 void remover_palavra_interface(NoTrie **raiz) {
@@ -339,17 +352,23 @@ void remover_palavra_interface(NoTrie **raiz) {
 	
 	printf("Insira uma palavra para remove-la do dicionario, caso exista:\n\n");
 
-	printf("> ");
-	scanf("%s", entrada);
+	do {
+		printf("> ");
+		
+		scanf(" %255[^\n]s", entrada);
+		limpar_buffer();
 
-	while (!entrada_valida(entrada)) {
+		if (entrada_valida(entrada))
+			break;
+	
 		if (entrada[0] == '0') {
-			printf("Retornando ao menu...\n");
+			printf("\nRetornando ao menu...\n");
+			getchar();
 			return;
 		}
-	
-		printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
-	}
+
+		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+	} while (true);
 
 	bool existe = existe_palavra(*raiz, entrada);
 
@@ -361,7 +380,7 @@ void remover_palavra_interface(NoTrie **raiz) {
 	remover_palavra(raiz, entrada);
 
 	printf("Palavra removida com sucesso.\n");
-	aguardar_usuario();
+	getchar();
 }
 
 /* ==================== INTERFACES ==================== */
