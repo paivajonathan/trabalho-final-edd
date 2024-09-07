@@ -25,35 +25,6 @@ NoTrie *criar_no(void) {
 	return no;
 }
 
-void inserir_palavra(NoTrie *raiz, const char *palavra) {
-	NoTrie *no_atual = raiz;
-	size_t tamanho_palavra = strlen(palavra);
-
-	if (tamanho_palavra > MAX_CARACTERES) {
-		printf("Tamanho máximo para inserir novas palavras é de %d caracteres.\n", MAX_CARACTERES);
-		return;
-	}
-
-	// Percorre para cada caractere da palavra
-	for (size_t i = 0; i < tamanho_palavra; i++) {
-		// Descobre o 'indice' que representa a letra atual da palavra
-		int indice_palavra = palavra[i] - 'a';
-
-		// Caso esse indice nos filhos do nó atual esteja vazio, criamos ele
-		if (no_atual->filhos[indice_palavra] == NULL) {
-			// Nó para representar cada letra da palavra
-			no_atual->filhos[indice_palavra] = criar_no();
-		}
-
-		// O nó atual passa a ser esse índice recém-criado
-		no_atual = no_atual->filhos[indice_palavra];
-	}
-
-	// Marca o nó atual como contendo uma palavra inteira,
-	// do caminho da raíz até ele
-	no_atual->fim_palavra = true;
-}
-
 bool existe_palavra(NoTrie *raiz, const char *palavra) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_palavra = strlen(palavra);
@@ -77,22 +48,6 @@ bool existe_palavra(NoTrie *raiz, const char *palavra) {
 	return no_atual->fim_palavra;
 }
 
-NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo) {
-	NoTrie *no_atual = raiz;
-	size_t tamanho_prefixo = strlen(prefixo);
-
-	for (size_t i = 0; i < tamanho_prefixo; i++) {
-		int indice_letra = prefixo[i] - 'a';
-
-		if (no_atual->filhos[indice_letra] == NULL)
-			return NULL;
-
-		no_atual = no_atual->filhos[indice_letra];
-	}
-
-	return no_atual;
-}
-
 void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t tamanho) {
 	// Caso tenha chegado em um nó marcado como fim de palavra,
 	// exibe a palavra que foi coletada até ele
@@ -113,6 +68,22 @@ void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t tamanho
 		// Chama a função novamente, passando esse nó filho
 		coletar_palavras(no_atual->filhos[i], prefixo_temporario, tamanho + 1);
 	}
+}
+
+NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo) {
+	NoTrie *no_atual = raiz;
+	size_t tamanho_prefixo = strlen(prefixo);
+
+	for (size_t i = 0; i < tamanho_prefixo; i++) {
+		int indice_letra = prefixo[i] - 'a';
+
+		if (no_atual->filhos[indice_letra] == NULL)
+			return NULL;
+
+		no_atual = no_atual->filhos[indice_letra];
+	}
+
+	return no_atual;
 }
 
 void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo) {
@@ -142,13 +113,33 @@ void exibir_todas_palavras(NoTrie *raiz) {
 	coletar_palavras(raiz, prefixo_temporario, 0);
 }
 
-bool entrada_valida(const char *str) {
-	while (*str) {
-		if (!islower((unsigned char)*str))
-			return false;
-		str++;
+void inserir_palavra(NoTrie *raiz, const char *palavra) {
+	NoTrie *no_atual = raiz;
+	size_t tamanho_palavra = strlen(palavra);
+
+	if (tamanho_palavra > MAX_CARACTERES) {
+		printf("Tamanho máximo para inserir novas palavras é de %d caracteres.\n", MAX_CARACTERES);
+		return;
 	}
-	return true;
+
+	// Percorre para cada caractere da palavra
+	for (size_t i = 0; i < tamanho_palavra; i++) {
+		// Descobre o 'indice' que representa a letra atual da palavra
+		int indice_palavra = palavra[i] - 'a';
+
+		// Caso esse indice nos filhos do nó atual esteja vazio, criamos ele
+		if (no_atual->filhos[indice_palavra] == NULL) {
+			// Nó para representar cada letra da palavra
+			no_atual->filhos[indice_palavra] = criar_no();
+		}
+
+		// O nó atual passa a ser esse índice recém-criado
+		no_atual = no_atual->filhos[indice_palavra];
+	}
+
+	// Marca o nó atual como contendo uma palavra inteira,
+	// do caminho da raíz até ele
+	no_atual->fim_palavra = true;
 }
 
 bool possui_filhos(NoTrie *raiz) {
@@ -201,6 +192,15 @@ void exibir_menu(void) {
 	printf("\nDigite um prefixo, para descobrir as suas palavras possiveis.\n\n");
 	printf("Regras:\n- Digite apenas letras minusculas.\n- Para encerrar o programa digite 0.\n");
 	printf("======================================================================\n\n");
+}
+
+bool entrada_valida(const char *str) {
+	while (*str) {
+		if (!islower((unsigned char)*str))
+			return false;
+		str++;
+	}
+	return true;
 }
 
 int main(void)
