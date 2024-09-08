@@ -280,7 +280,7 @@ void exibir_menu(void) {
 
 	printf("- 1: Exibir todas as palavras\n");
 	printf("- 2: Exibir todas as palavras com um certo prefixo\n");
-	printf("- 3: Exibir maior prefixo associado a uma palavra\n");
+	printf("- 3: Exibir maior prefixo registrado associado a uma palavra\n");
 	printf("- 4: Verificar se uma palavra existe no sistema\n");
 	printf("- 5: Inserir uma nova palavra no sistema\n");
 	printf("- 6: Remover uma palavra do sistema\n");
@@ -327,7 +327,7 @@ void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 void exibir_maior_prefixo_interface(NoTrie *raiz) {
 	char entrada[MAX_CARACTERES];
 
-	printf("\nDigite uma palavra, para descobrir o maior prefixo possivel associado a ela.\n");
+	printf("\nDigite uma palavra, para descobrir o maior prefixo registrado associado a ela.\n");
 
 	do {
 		printf("> ");
