@@ -213,6 +213,40 @@ void exibir_todas_palavras(NoTrie *raiz) {
 	coletar_palavras(raiz, prefixo_temporario, 0);
 }
 
+size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t nivel, size_t tamanho) {
+	if (raiz == NULL)
+		return tamanho;
+	
+	if (raiz->fim_palavra)
+		tamanho = nivel;
+
+	if (nivel == strlen(palavra))
+		return tamanho;
+	
+	int indice = palavra[nivel] - 'a';
+	
+	return obter_tamanho_maior_prefixo(raiz->filhos[indice], palavra, nivel + 1, tamanho);
+}
+
+void exibir_maior_prefixo(NoTrie *raiz, const char *palavra) {
+	size_t tamanho_maior_prefixo = obter_tamanho_maior_prefixo(raiz, palavra, 0, 0);
+	
+	char *maior_prefixo = (char *) malloc(sizeof(char) * (tamanho_maior_prefixo + 1));
+	
+	if (maior_prefixo == NULL) {
+		printf("Ocorreu um erro ao alocar memoria para o maior prefixo.\n");
+		exit(1);
+	}
+	
+	strncpy(maior_prefixo, palavra, tamanho_maior_prefixo);
+	maior_prefixo[tamanho_maior_prefixo] = '\0';
+
+	printf("%s\n", maior_prefixo[0] == '\0' ? "Nao ha prefixo associado" : maior_prefixo);
+
+	free(maior_prefixo);
+	maior_prefixo = NULL;
+}
+
 /* ==================== APLICAÇÕES REAIS ==================== */
 
 /* ==================== UTILITÁRIOS ==================== */
@@ -246,9 +280,10 @@ void exibir_menu(void) {
 
 	printf("- 1: Exibir todas as palavras\n");
 	printf("- 2: Exibir todas as palavras com um certo prefixo\n");
-	printf("- 3: Verificar se uma palavra existe no sistema\n");
-	printf("- 4: Inserir uma nova palavra no sistema\n");
-	printf("- 5: Remover uma palavra do sistema\n");
+	printf("- 3: Exibir maior prefixo associado a uma palavra\n");
+	printf("- 4: Verificar se uma palavra existe no sistema\n");
+	printf("- 5: Inserir uma nova palavra no sistema\n");
+	printf("- 6: Remover uma palavra do sistema\n");
 	printf("- 0: Encerrar o sistema ou encerrar uma operacao\n\n");
 	
 	printf("Sao permitidas apenas palavras:\n");
@@ -287,6 +322,33 @@ void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 		exibir_palavras_com_prefixo(raiz, entrada);
 		printf("\n");
 	}
+}
+
+void exibir_maior_prefixo_interface(NoTrie *raiz) {
+	char entrada[MAX_CARACTERES];
+
+	printf("\nDigite uma palavra, para descobrir o maior prefixo possivel associado a ela.\n");
+
+	do {
+		printf("> ");
+		
+		scanf(" %255[^\n]s", entrada);
+		limpar_buffer();
+
+		if (entrada_valida(entrada))
+			break;
+	
+		if (entrada[0] == '0') {
+			printf("\nRetornando ao menu...\n");
+			getchar();
+			return;
+		}
+
+		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+	} while (true);
+
+	exibir_maior_prefixo(raiz, entrada);
+	getchar();
 }
 
 void existe_palavra_interface(NoTrie *raiz) {
@@ -395,6 +457,7 @@ int main(void)
 		
 		printf("> ");
 		scanf("%d", &opcao);
+		limpar_buffer();
 
 		if (opcao == 0) {
 			printf("Encerrando programa...\n");
@@ -409,18 +472,23 @@ int main(void)
 				exibir_palavras_com_prefixo_interface(raiz);
 				break;
 			case 3:
-				existe_palavra_interface(raiz);
+				exibir_maior_prefixo_interface(raiz);
 				break;
 			case 4:
-				inserir_palavra_interface(raiz);
+				existe_palavra_interface(raiz);
 				break;
 			case 5:
+				inserir_palavra_interface(raiz);
+				break;
+			case 6:
 				remover_palavra_interface(&raiz);
 				break;
 			default:
 				printf("Digite uma opcao valida...\n");
-				opcao = -1;
+				getchar();
 				break;
+
+			opcao = -1;
 		}
 	}
 
