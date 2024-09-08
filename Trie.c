@@ -265,12 +265,6 @@ void limpar_buffer(void) {
   while ((c = getchar()) != '\n' && c != EOF);
 }
 
-void aguardar_usuario(void) {
-	limpar_buffer();
-	printf("Pressione enter para continuar...\n");
-	getchar();
-}
-
 /* ==================== UTILITÁRIOS ==================== */
 
 /* ==================== INTERFACES ==================== */
@@ -296,7 +290,7 @@ void exibir_menu(void) {
 void exibir_todas_palavras_interface(NoTrie *raiz) {
 	printf("\nExibindo todas as palavras cadastradas:\n\n");
 	exibir_todas_palavras(raiz);
-	aguardar_usuario();
+	getchar();
 }
 
 void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
