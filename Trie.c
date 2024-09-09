@@ -377,7 +377,7 @@ void existe_palavra_interface(NoTrie *raiz) {
 void inserir_palavra_interface(NoTrie *raiz) {
 	char entrada[MAX_CARACTERES];
 	
-	printf("Insira uma palavra que voce deseja no dicionario:\n\n");
+	printf("\nInsira uma palavra que voce deseja no dicionario:\n");
 
 	do {
 		printf("> ");
@@ -406,7 +406,7 @@ void inserir_palavra_interface(NoTrie *raiz) {
 void remover_palavra_interface(NoTrie **raiz) {
 	char entrada[MAX_CARACTERES];
 	
-	printf("Insira uma palavra para remove-la do dicionario, caso exista:\n\n");
+	printf("\nInsira uma palavra para remove-la do dicionario, caso exista:\n");
 
 	do {
 		printf("> ");
