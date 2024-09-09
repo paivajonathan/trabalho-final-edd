@@ -370,7 +370,7 @@ void existe_palavra_interface(NoTrie *raiz) {
 
 	bool existe = existe_palavra(raiz, entrada);
 	
-	printf("A palavra %s dicionario\n", existe ? "esta" : "nao existe");
+	printf("A palavra %s no dicionario\n", existe ? "esta" : "nao existe");
 	getchar();
 }
 
