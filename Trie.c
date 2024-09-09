@@ -430,6 +430,7 @@ void remover_palavra_interface(NoTrie **raiz) {
 
 	if (!existe) {
 		printf("Palavra nao esta no dicionario, logo nao e possivel remove-la.\n");
+		getchar();
 		return;
 	}
 
