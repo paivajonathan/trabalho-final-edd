@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include "timeout.h"
 
 #define MAX_CARACTERES 256
 #define TAMANHO_ALFABETO 26
@@ -27,22 +28,37 @@ NoTrie *criar_no(void) {
 	return no;
 }
 
-bool existe_palavra(NoTrie *raiz, const char *palavra) {
+bool existe_palavra(NoTrie *raiz, const char *palavra, bool verboso) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_palavra = strlen(palavra);
 
 	for (size_t i = 0; i < tamanho_palavra; i++) {
+		if (verboso)
+			printf("Letra atual: %c\n", palavra[i]);
+
 		// Calcula o indice da letra, número entre 0 - 25.
 		int indice_palavra = palavra[i] - 'a';
 
+		if (verboso)
+			printf("Indice: %d\n", indice_palavra);
+
 		// Dado o nó atual, caso o indice dessa letra
 		// não seja encontrado nos filhos, então não é possível encontrá-la.
-		if (no_atual->filhos[indice_palavra] == NULL)
+		if (no_atual->filhos[indice_palavra] == NULL) {
+			if (verboso)
+				printf("No nulo.\n");
+			
 			return false;
+		}
 
 		// Se a letra realmente exista (existe um nó nesse índice)
 		// então o nó atual vai passar a ser esse nó
 		no_atual = no_atual->filhos[indice_palavra];
+
+		if (verboso) {
+			printf("\n");
+			timeout(1);
+		}
 	}
 
 	// Percorridos os nós para todas as letras, ao chegar ao fim,
@@ -50,7 +66,7 @@ bool existe_palavra(NoTrie *raiz, const char *palavra) {
 	return no_atual->fim_palavra;
 }
 
-void inserir_palavra(NoTrie *raiz, const char *palavra) {
+void inserir_palavra(NoTrie *raiz, const char *palavra, bool verboso) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_palavra = strlen(palavra);
 
@@ -61,17 +77,31 @@ void inserir_palavra(NoTrie *raiz, const char *palavra) {
 
 	// Percorre para cada caractere da palavra
 	for (size_t i = 0; i < tamanho_palavra; i++) {
+		if (verboso)
+			printf("Letra atual: %c\n", palavra[i]);
+
 		// Descobre o 'indice' que representa a letra atual da palavra
 		int indice_palavra = palavra[i] - 'a';
 
+		if (verboso)
+			printf("Indice: %d\n", indice_palavra);
+
 		// Caso esse indice nos filhos do nó atual esteja vazio, criamos ele
 		if (no_atual->filhos[indice_palavra] == NULL) {
+			if (verboso)
+				printf("No nulo, alocando memoria...\n");
+
 			// Nó para representar cada letra da palavra
 			no_atual->filhos[indice_palavra] = criar_no();
 		}
 
 		// O nó atual passa a ser esse índice recém-criado
 		no_atual = no_atual->filhos[indice_palavra];
+
+		if (verboso) {
+			printf("\n");
+			timeout(1);
+		}
 	}
 
 	// Marca o nó atual como contendo uma palavra inteira,
@@ -96,7 +126,7 @@ NoTrie *criar_trie(void) {
 	int qtd_palavras = sizeof(palavras) / sizeof(palavras[0]);
 
 	for (int i = 0; i < qtd_palavras; i++)
-		inserir_palavra(raiz, palavras[i]);
+		inserir_palavra(raiz, palavras[i], false);
 
 	return raiz;
 }
@@ -110,19 +140,52 @@ bool possui_filhos(NoTrie *raiz) {
 }
 
 NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, size_t nivel) {
-	if (raiz == NULL)
+	char letra_atual = nivel ? chave[nivel - 1] : ' ';
+	
+	printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
+
+	if (raiz == NULL) {
+		printf("No nulo, chave nao esta presente na trie.\n\n");
+		timeout(1);
+
 		return NULL;
+	}
 
 	if (nivel == strlen(chave)) {
+		printf("No correspondente ao fim da chave encontrado, removendo o seu valor.\n\n");
+		timeout(1);
+		
 		raiz->fim_palavra = false;
 	} else {
+		printf("Fim de chave nao encontrado.\n");
+		
 		int indice = chave[nivel] - 'a';
+		
+		printf("Proxima letra: %c, Indice: %d\n\n", chave[nivel], indice);
+		timeout(1);
+
 		raiz->filhos[indice] = remover_palavra_interno(raiz->filhos[indice], chave, nivel + 1); 
 	}
 
-	if (raiz->fim_palavra || possui_filhos(raiz))
+	printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
+
+	if (raiz->fim_palavra) {
+		printf("No esta marcado como fim de outra chave, mantenha.\n\n");
+		timeout(1);
+		
 		return raiz;
+	}
+
+	if (possui_filhos(raiz)) {
+		printf("No possui ligacoes com outros nos, mantenha.\n\n");
+		timeout(1);
+		
+		return raiz;
+	}
 	
+	printf("Removendo no da trie.\n\n");
+	timeout(1);
+
 	free(raiz);
 	raiz = NULL;
 	return raiz;
@@ -265,6 +328,11 @@ void limpar_buffer(void) {
   while ((c = getchar()) != '\n' && c != EOF);
 }
 
+void aguardar_usuario(void) {
+	printf("Pressione Enter para continuar...\n");
+	getchar();
+}
+
 /* ==================== UTILITÁRIOS ==================== */
 
 /* ==================== INTERFACES ==================== */
@@ -290,7 +358,7 @@ void exibir_menu(void) {
 void exibir_todas_palavras_interface(NoTrie *raiz) {
 	printf("\nExibindo todas as palavras cadastradas:\n\n");
 	exibir_todas_palavras(raiz);
-	getchar();
+	aguardar_usuario();
 }
 
 void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
@@ -300,16 +368,18 @@ void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 	
 	while (true) {
 		printf("> ");
+
 		scanf(" %255[^\n]s", entrada);
+		limpar_buffer();
 
 		if (!entrada_valida(entrada)) {
 			if (entrada[0] == '0') {
-				printf("\nRetornando ao menu...\n");
-				getchar();
+				printf("Retornando ao menu...\n");
+				aguardar_usuario();
 				return;
 			}
 
-			printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
+			printf("Tente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n\n");
 			continue;
 		}
 
@@ -334,7 +404,7 @@ void exibir_maior_prefixo_interface(NoTrie *raiz) {
 	
 		if (entrada[0] == '0') {
 			printf("\nRetornando ao menu...\n");
-			getchar();
+			aguardar_usuario();
 			return;
 		}
 
@@ -342,7 +412,7 @@ void exibir_maior_prefixo_interface(NoTrie *raiz) {
 	} while (true);
 
 	exibir_maior_prefixo(raiz, entrada);
-	getchar();
+	aguardar_usuario();
 }
 
 void existe_palavra_interface(NoTrie *raiz) {
@@ -361,17 +431,17 @@ void existe_palavra_interface(NoTrie *raiz) {
 	
 		if (entrada[0] == '0') {
 			printf("\nRetornando ao menu...\n");
-			getchar();
+			aguardar_usuario();
 			return;
 		}
 
 		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 	} while (true);
 
-	bool existe = existe_palavra(raiz, entrada);
+	bool existe = existe_palavra(raiz, entrada, true);
 	
 	printf("A palavra %s no dicionario\n", existe ? "esta" : "nao existe");
-	getchar();
+	aguardar_usuario();
 }
 
 void inserir_palavra_interface(NoTrie *raiz) {
@@ -390,17 +460,17 @@ void inserir_palavra_interface(NoTrie *raiz) {
 	
 		if (entrada[0] == '0') {
 			printf("\nRetornando ao menu...\n");
-			getchar();
+			aguardar_usuario();
 			return;
 		}
 
 		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 	} while (true);
 
-	inserir_palavra(raiz, entrada);
+	inserir_palavra(raiz, entrada, true);
 	
 	printf("Palavra cadastrada com sucesso.\n");
-	getchar();
+	aguardar_usuario();
 }
 
 void remover_palavra_interface(NoTrie **raiz) {
@@ -419,25 +489,25 @@ void remover_palavra_interface(NoTrie **raiz) {
 	
 		if (entrada[0] == '0') {
 			printf("\nRetornando ao menu...\n");
-			getchar();
+			aguardar_usuario();
 			return;
 		}
 
 		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 	} while (true);
 
-	bool existe = existe_palavra(*raiz, entrada);
+	bool existe = existe_palavra(*raiz, entrada, false);
 
 	if (!existe) {
 		printf("Palavra nao esta no dicionario, logo nao e possivel remove-la.\n");
-		getchar();
+		aguardar_usuario();
 		return;
 	}
 
 	remover_palavra(raiz, entrada);
 
 	printf("Palavra removida com sucesso.\n");
-	getchar();
+	aguardar_usuario();
 }
 
 /* ==================== INTERFACES ==================== */
@@ -480,7 +550,7 @@ int main(void)
 				break;
 			default:
 				printf("Digite uma opcao valida...\n");
-				getchar();
+				aguardar_usuario();
 				break;
 
 			opcao = -1;
