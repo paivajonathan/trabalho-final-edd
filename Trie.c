@@ -213,25 +213,66 @@ void destruir_trie(NoTrie *raiz) {
 
 /* ==================== APLICAÇÕES REAIS ==================== */
 
-void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel) {
-	// Caso tenha chegado em um nó marcado como fim de palavra,
-	// exibe a palavra que foi coletada até ele
-	if (no_atual->fim_palavra) {
+void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel, bool verboso) {
+	bool nivel_exibido = false;
+	char letra_atual = ' ';
+
+	if (verboso) {
+		printf("Nivel: %d\n", nivel);
+		
+		if (no_atual->fim_palavra)
+			printf("Palavra encontrada!\n");
+		
 		prefixo_temporario[nivel] = '\0';
-		printf("%s\n", prefixo_temporario);
+		printf("Palavra atual: %s\n\n", prefixo_temporario);
+		
+		timeout(1);
+	} else {
+		// Caso tenha chegado em um nó marcado como fim de palavra,
+		// exibe a palavra que foi coletada até ele
+		if (no_atual->fim_palavra) {
+			prefixo_temporario[nivel] = '\0';
+			printf("%s\n", prefixo_temporario);
+		}
 	}
 
 	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
-		// Caso não exista um nó nessa posição, ignora a posição
-		if (no_atual->filhos[i] == NULL)
-			continue;
-
 		// Transforma a posição de volta na letra original,
 		// para ser possível exibi-la
-		prefixo_temporario[nivel] = i + 'a';
+		letra_atual = i + 'a';
+
+		if (verboso) {
+			if (!nivel_exibido) {
+				printf("Nivel: %d\n", nivel);
+				printf("Buscando proxima letra...\n");
+				nivel_exibido = true;
+			}
+
+			printf("%c ", letra_atual);
+		}
+		
+		// Caso não exista um nó nessa posição, ignora a posição
+		if (no_atual->filhos[i] == NULL) {
+			if (verboso && i == TAMANHO_ALFABETO - 1) {
+				printf("\n\n");
+				nivel_exibido = false;
+				timeout(1);
+			}
+
+			continue;
+		}
+
+		if (verboso) {
+			printf("<--- Encontrada!\n\n");
+			nivel_exibido = false;
+			timeout(1);
+		}
+
+		// Adiciona a letra atual no fim da string
+		prefixo_temporario[nivel] = letra_atual;
 
 		// Chama a função novamente, passando esse nó filho
-		coletar_palavras(no_atual->filhos[i], prefixo_temporario, nivel + 1);
+		coletar_palavras(no_atual->filhos[i], prefixo_temporario, nivel + 1, verboso);
 	}
 }
 
@@ -251,7 +292,7 @@ NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo) {
 	return no_atual;
 }
 
-void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo) {
+void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo, bool verboso) {
 	NoTrie *no_prefixo = encontrar_no(raiz, prefixo);
 
 	if (no_prefixo == NULL) {
@@ -268,12 +309,12 @@ void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo) {
 	// com as possibilidades que encontrar
 	size_t tamanho_prefixo = strlen(prefixo);
 
-	coletar_palavras(no_prefixo, prefixo_temporario, tamanho_prefixo);
+	coletar_palavras(no_prefixo, prefixo_temporario, tamanho_prefixo, verboso);
 }
 
-void exibir_todas_palavras(NoTrie *raiz) {	
+void exibir_todas_palavras(NoTrie *raiz, bool verboso) {	
 	char prefixo_temporario[MAX_CARACTERES];
-	coletar_palavras(raiz, prefixo_temporario, 0);
+	coletar_palavras(raiz, prefixo_temporario, 0, verboso);
 }
 
 size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t nivel, size_t tamanho) {
@@ -357,7 +398,7 @@ void exibir_menu(void) {
 
 void exibir_todas_palavras_interface(NoTrie *raiz) {
 	printf("\nExibindo todas as palavras cadastradas:\n\n");
-	exibir_todas_palavras(raiz);
+	exibir_todas_palavras(raiz, true);
 	aguardar_usuario();
 }
 
@@ -383,7 +424,7 @@ void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 			continue;
 		}
 
-		exibir_palavras_com_prefixo(raiz, entrada);
+		exibir_palavras_com_prefixo(raiz, entrada, true);
 		printf("\n");
 	}
 }
