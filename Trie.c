@@ -3,7 +3,20 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include "timeout.h"
+
+#ifdef _WIN32
+  #include <windows.h>
+  
+  void timeout(unsigned int seconds) {
+    Sleep(seconds * 1000);  // No Windows, Sleep é em milissegundos
+  }
+#else
+  #include <unistd.h>
+  
+  void timeout(unsigned int seconds) {
+    sleep(seconds);  // No POSIX, sleep é em segundos
+  }
+#endif
 
 #define MAX_CARACTERES 256
 #define TAMANHO_ALFABETO 26
