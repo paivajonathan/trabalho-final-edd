@@ -284,24 +284,43 @@ void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel, 
 	}
 }
 
-NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo) {
+NoTrie *encontrar_no(NoTrie *raiz, const char *prefixo, bool verboso) {
 	NoTrie *no_atual = raiz;
 	size_t tamanho_prefixo = strlen(prefixo);
 
 	for (size_t i = 0; i < tamanho_prefixo; i++) {
 		int indice_letra = prefixo[i] - 'a';
 
-		if (no_atual->filhos[indice_letra] == NULL)
+		if (verboso)
+			printf("Letra atual: %c, Indice: %d\n", prefixo[i], indice_letra);
+
+		if (no_atual->filhos[indice_letra] == NULL) {
+			if (verboso) {
+				printf("No nulo encontrado.\nPrefixo nao existe na trie\n\n");
+				timeout(1);
+			}
+
 			return NULL;
+		}
 
 		no_atual = no_atual->filhos[indice_letra];
+
+		if (verboso) {
+			printf("\n");
+			timeout(1);
+		}
+	}
+
+	if (verboso) {
+		printf("Prefixo existe na Trie.\n\n");
+		timeout(1);
 	}
 
 	return no_atual;
 }
 
 void exibir_palavras_com_prefixo(NoTrie *raiz, const char *prefixo, bool verboso) {
-	NoTrie *no_prefixo = encontrar_no(raiz, prefixo);
+	NoTrie *no_prefixo = encontrar_no(raiz, prefixo, verboso);
 
 	if (no_prefixo == NULL) {
 		printf("nao foram encontradas palavras.\n");
@@ -417,10 +436,11 @@ void exibir_menu(void) {
 
 	printf("- 1: Exibir todas as palavras\n");
 	printf("- 2: Exibir todas as palavras com um certo prefixo\n");
-	printf("- 3: Exibir maior prefixo registrado associado a uma palavra\n");
+	printf("- 3: Exibir maior prefixo de uma palavra que esta registrado como chave na Trie\n");
 	printf("- 4: Verificar se uma palavra existe no sistema\n");
 	printf("- 5: Inserir uma nova palavra no sistema\n");
 	printf("- 6: Remover uma palavra do sistema\n");
+	printf("- 7: Alterar modo verboso\n");
 	printf("- 0: Encerrar o sistema ou encerrar uma operacao\n\n");
 	
 	printf("Sao permitidas apenas palavras:\n");
@@ -430,13 +450,13 @@ void exibir_menu(void) {
 	printf("======================================================================\n");
 }
 
-void exibir_todas_palavras_interface(NoTrie *raiz) {
+void exibir_todas_palavras_interface(NoTrie *raiz, bool verboso) {
 	printf("\nExibindo todas as palavras cadastradas:\n\n");
-	exibir_todas_palavras(raiz, true);
+	exibir_todas_palavras(raiz, verboso);
 	aguardar_usuario();
 }
 
-void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
+void exibir_palavras_com_prefixo_interface(NoTrie *raiz, bool verboso) {
 	char entrada[MAX_CARACTERES];
 	
 	printf("\nDigite um prefixo, para descobrir as suas palavras possiveis.\n");	
@@ -458,15 +478,15 @@ void exibir_palavras_com_prefixo_interface(NoTrie *raiz) {
 			continue;
 		}
 
-		exibir_palavras_com_prefixo(raiz, entrada, true);
+		exibir_palavras_com_prefixo(raiz, entrada, verboso);
 		printf("\n");
 	}
 }
 
-void exibir_maior_prefixo_interface(NoTrie *raiz) {
+void exibir_maior_prefixo_interface(NoTrie *raiz, bool verboso) {
 	char entrada[MAX_CARACTERES];
 
-	printf("\nDigite uma palavra, para descobrir o maior prefixo registrado associado a ela.\n");
+	printf("\nDigite uma palavra, para descobrir o seu maior prefixo que e uma chave na Trie.\n");
 
 	do {
 		printf("> ");
@@ -486,11 +506,11 @@ void exibir_maior_prefixo_interface(NoTrie *raiz) {
 		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 	} while (true);
 
-	exibir_maior_prefixo(raiz, entrada, true);
+	exibir_maior_prefixo(raiz, entrada, verboso);
 	aguardar_usuario();
 }
 
-void existe_palavra_interface(NoTrie *raiz) {
+void existe_palavra_interface(NoTrie *raiz, bool verboso) {
 	char entrada[MAX_CARACTERES];
 	
 	printf("\nInsira uma palavra para verificar se existe no dicionario:\n");
@@ -513,13 +533,13 @@ void existe_palavra_interface(NoTrie *raiz) {
 		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 	} while (true);
 
-	bool existe = existe_palavra(raiz, entrada, true);
+	bool existe = existe_palavra(raiz, entrada, verboso);
 	
 	printf("A palavra %s no dicionario\n", existe ? "esta" : "nao existe");
 	aguardar_usuario();
 }
 
-void inserir_palavra_interface(NoTrie *raiz) {
+void inserir_palavra_interface(NoTrie *raiz, bool verboso) {
 	char entrada[MAX_CARACTERES];
 	
 	printf("\nInsira uma palavra que voce deseja no dicionario:\n");
@@ -542,13 +562,13 @@ void inserir_palavra_interface(NoTrie *raiz) {
 		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 	} while (true);
 
-	inserir_palavra(raiz, entrada, true);
+	inserir_palavra(raiz, entrada, verboso);
 	
 	printf("Palavra cadastrada com sucesso.\n");
 	aguardar_usuario();
 }
 
-void remover_palavra_interface(NoTrie **raiz) {
+void remover_palavra_interface(NoTrie **raiz, bool verboso) {
 	char entrada[MAX_CARACTERES];
 	
 	printf("\nInsira uma palavra para remove-la do dicionario, caso exista:\n");
@@ -579,9 +599,17 @@ void remover_palavra_interface(NoTrie **raiz) {
 		return;
 	}
 
-	remover_palavra(raiz, entrada, true);
+	remover_palavra(raiz, entrada, verboso);
 
 	printf("Palavra removida com sucesso.\n");
+	aguardar_usuario();
+}
+
+void alterar_modo_verboso_interface(bool *verboso) {
+	printf("Alterando modo verboso...\n");
+	timeout(1);
+	*verboso = !(*verboso);
+	printf("Modo verboso esta %s.\n", (*verboso) ? "ativado" : "desativado");
 	aguardar_usuario();
 }
 
@@ -591,8 +619,10 @@ int main(void)
 {
 	NoTrie *raiz = criar_trie();
 	int opcao = -1;
+	bool verboso = false;
 
 	while (true) {
+		opcao = -1;
 		exibir_menu();
 		
 		printf("> ");
@@ -606,29 +636,30 @@ int main(void)
 
 		switch (opcao) {
 			case 1:
-				exibir_todas_palavras_interface(raiz);
+				exibir_todas_palavras_interface(raiz, verboso);
 				break;
 			case 2:
-				exibir_palavras_com_prefixo_interface(raiz);
+				exibir_palavras_com_prefixo_interface(raiz, verboso);
 				break;
 			case 3:
-				exibir_maior_prefixo_interface(raiz);
+				exibir_maior_prefixo_interface(raiz, verboso);
 				break;
 			case 4:
-				existe_palavra_interface(raiz);
+				existe_palavra_interface(raiz, verboso);
 				break;
 			case 5:
-				inserir_palavra_interface(raiz);
+				inserir_palavra_interface(raiz, verboso);
 				break;
 			case 6:
-				remover_palavra_interface(&raiz);
+				remover_palavra_interface(&raiz, verboso);
+				break;
+			case 7:
+				alterar_modo_verboso_interface(&verboso);
 				break;
 			default:
 				printf("Digite uma opcao valida...\n");
 				aguardar_usuario();
 				break;
-
-			opcao = -1;
 		}
 	}
 
