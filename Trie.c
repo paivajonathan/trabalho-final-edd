@@ -139,60 +139,73 @@ bool possui_filhos(NoTrie *raiz) {
 	return false;
 }
 
-NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, size_t nivel) {
+NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, size_t nivel, bool verboso) {
 	char letra_atual = nivel ? chave[nivel - 1] : ' ';
 	
-	printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
+	if (verboso)
+		printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
 
 	if (raiz == NULL) {
-		printf("No nulo, chave nao esta presente na trie.\n\n");
-		timeout(1);
+		if (verboso) {
+			printf("No nulo, chave nao esta presente na trie.\n\n");
+			timeout(1);
+		}
 
 		return NULL;
 	}
 
 	if (nivel == strlen(chave)) {
-		printf("No correspondente ao fim da chave encontrado, removendo o seu valor.\n\n");
-		timeout(1);
+		if (verboso) {
+			printf("No correspondente ao fim da chave encontrado, removendo o seu valor.\n\n");
+			timeout(1);
+		}
 		
 		raiz->fim_palavra = false;
 	} else {
-		printf("Fim de chave nao encontrado.\n");
-		
 		int indice = chave[nivel] - 'a';
 		
-		printf("Proxima letra: %c, Indice: %d\n\n", chave[nivel], indice);
-		timeout(1);
+		if (verboso) {
+			printf("Fim de chave nao encontrado.\n");
+			printf("Proxima letra: %c, Indice: %d\n\n", chave[nivel], indice);
+			timeout(1);
+		}
 
-		raiz->filhos[indice] = remover_palavra_interno(raiz->filhos[indice], chave, nivel + 1); 
+		raiz->filhos[indice] = remover_palavra_interno(raiz->filhos[indice], chave, nivel + 1, verboso); 
 	}
 
-	printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
+	if (verboso)
+		printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
 
 	if (raiz->fim_palavra) {
-		printf("No esta marcado como fim de outra chave, mantenha.\n\n");
-		timeout(1);
+		if (verboso) {
+			printf("No esta marcado como fim de outra chave, mantenha.\n\n");
+			timeout(1);
+		}
 		
 		return raiz;
 	}
 
 	if (possui_filhos(raiz)) {
-		printf("No possui ligacoes com outros nos, mantenha.\n\n");
-		timeout(1);
+		if (verboso) {
+			printf("No possui ligacoes com outros nos, mantenha.\n\n");
+			timeout(1);
+		}
 		
 		return raiz;
 	}
 	
-	printf("Removendo no da trie.\n\n");
-	timeout(1);
+	if (verboso) {
+		printf("Removendo no da trie.\n\n");
+		timeout(1);
+	}
 
 	free(raiz);
 	raiz = NULL;
 	return raiz;
 }
 
-void remover_palavra(NoTrie **raiz, const char *chave) {
-	*raiz = remover_palavra_interno(*raiz, chave, 0);
+void remover_palavra(NoTrie **raiz, const char *chave, bool verboso) {
+	*raiz = remover_palavra_interno(*raiz, chave, 0, verboso);
 }
 
 void destruir_trie(NoTrie *raiz) {
@@ -202,6 +215,7 @@ void destruir_trie(NoTrie *raiz) {
 	for (int i = 0; i < TAMANHO_ALFABETO; i++) {
 		if (raiz->filhos[i] == NULL)
 			continue;
+			
 		destruir_trie(raiz->filhos[i]);
 	}
 
@@ -317,23 +331,49 @@ void exibir_todas_palavras(NoTrie *raiz, bool verboso) {
 	coletar_palavras(raiz, prefixo_temporario, 0, verboso);
 }
 
-size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t nivel, size_t tamanho) {
-	if (raiz == NULL)
-		return tamanho;
-	
-	if (raiz->fim_palavra)
-		tamanho = nivel;
+size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t nivel, size_t tamanho, bool verboso) {
+	if (verboso) {
+		printf("Nivel: %d\n", nivel);
+	}
 
-	if (nivel == strlen(palavra))
+	if (raiz == NULL) {
+		if (verboso) {
+			printf("No nulo encontrado.\n\n");
+			timeout(1);
+		}
+
 		return tamanho;
+	}
+	
+	if (raiz->fim_palavra) {
+		tamanho = nivel;
+		
+		if (verboso) {
+			printf("Fim da palavra encontrado, tamanho atual: %d\n", tamanho);
+		}
+	}
+
+	if (nivel == strlen(palavra)) {
+		if (verboso) {
+			printf("Palavra percorrida por completo.\n\n");
+			timeout(1);
+		}
+
+		return tamanho;
+	}
 	
 	int indice = palavra[nivel] - 'a';
+
+	if (verboso) {
+		printf("Proxima letra: %c, Indice: %d\n\n", palavra[nivel], indice);
+		timeout(1);
+	}
 	
-	return obter_tamanho_maior_prefixo(raiz->filhos[indice], palavra, nivel + 1, tamanho);
+	return obter_tamanho_maior_prefixo(raiz->filhos[indice], palavra, nivel + 1, tamanho, verboso);
 }
 
-void exibir_maior_prefixo(NoTrie *raiz, const char *palavra) {
-	size_t tamanho_maior_prefixo = obter_tamanho_maior_prefixo(raiz, palavra, 0, 0);
+void exibir_maior_prefixo(NoTrie *raiz, const char *palavra, bool verboso) {
+	size_t tamanho_maior_prefixo = obter_tamanho_maior_prefixo(raiz, palavra, 0, 0, verboso);
 	
 	char *maior_prefixo = (char *) malloc(sizeof(char) * (tamanho_maior_prefixo + 1));
 	
@@ -452,7 +492,7 @@ void exibir_maior_prefixo_interface(NoTrie *raiz) {
 		printf("\nTente novamente...\nDigite uma palavra minuscula sem acentos ou espacos.\n");
 	} while (true);
 
-	exibir_maior_prefixo(raiz, entrada);
+	exibir_maior_prefixo(raiz, entrada, true);
 	aguardar_usuario();
 }
 
@@ -545,7 +585,7 @@ void remover_palavra_interface(NoTrie **raiz) {
 		return;
 	}
 
-	remover_palavra(raiz, entrada);
+	remover_palavra(raiz, entrada, true);
 
 	printf("Palavra removida com sucesso.\n");
 	aguardar_usuario();
