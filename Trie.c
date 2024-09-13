@@ -150,7 +150,7 @@ NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, size_t nivel, b
 	char letra_atual = nivel ? chave[nivel - 1] : ' ';
 	
 	if (verboso)
-		printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
+		printf("Nivel: %lu, Letra: %c\n", nivel, letra_atual);
 
 	if (raiz == NULL) {
 		if (verboso) {
@@ -181,7 +181,7 @@ NoTrie *remover_palavra_interno(NoTrie *raiz, const char *chave, size_t nivel, b
 	}
 
 	if (verboso)
-		printf("Nivel: %d, Letra: %c\n", nivel, letra_atual);
+		printf("Nivel: %lu, Letra: %c\n", nivel, letra_atual);
 
 	if (raiz->fim_palavra) {
 		if (verboso) {
@@ -239,7 +239,7 @@ void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel, 
 	char letra_atual = ' ';
 
 	if (verboso) {
-		printf("Nivel: %d\n", nivel);
+		printf("Nivel: %lu\n", nivel);
 		
 		if (no_atual->fim_palavra)
 			printf("Palavra encontrada!\n");
@@ -264,7 +264,7 @@ void coletar_palavras(NoTrie *no_atual, char *prefixo_temporario, size_t nivel, 
 
 		if (verboso) {
 			if (!nivel_exibido) {
-				printf("Nivel: %d\n", nivel);
+				printf("Nivel: %lu\n", nivel);
 				printf("Buscando proxima letra...\n");
 				nivel_exibido = true;
 			}
@@ -361,7 +361,7 @@ size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t niv
 	char letra_atual = nivel ? palavra[nivel - 1] : ' ';
 
 	if (verboso)
-		printf("Nivel: %d, Letra atual: %c\n", nivel, letra_atual);
+		printf("Nivel: %lu, Letra atual: %c\n", nivel, letra_atual);
 
 	if (raiz == NULL) {
 		if (verboso) {
@@ -376,7 +376,7 @@ size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t niv
 		tamanho = nivel;
 		
 		if (verboso)
-			printf("Fim da palavra encontrado, tamanho atual: %d\n", tamanho);
+			printf("Fim da palavra encontrado, tamanho atual: %lu\n", tamanho);
 	}
 
 	if (nivel == strlen(palavra)) {
