@@ -33,20 +33,17 @@ bool existe_palavra(NoTrie *raiz, const char *palavra, bool verboso) {
 	size_t tamanho_palavra = strlen(palavra);
 
 	for (size_t i = 0; i < tamanho_palavra; i++) {
-		if (verboso)
-			printf("Letra atual: %c\n", palavra[i]);
-
 		// Calcula o indice da letra, número entre 0 - 25.
 		int indice_palavra = palavra[i] - 'a';
 
 		if (verboso)
-			printf("Indice: %d\n", indice_palavra);
+			printf("Letra atual: %c\nIndice: %d\n", palavra[i], indice_palavra);
 
 		// Dado o nó atual, caso o indice dessa letra
 		// não seja encontrado nos filhos, então não é possível encontrá-la.
 		if (no_atual->filhos[indice_palavra] == NULL) {
 			if (verboso)
-				printf("No nulo.\n");
+				printf("No nulo encontrado.\n\n");
 			
 			return false;
 		}
@@ -77,19 +74,16 @@ void inserir_palavra(NoTrie *raiz, const char *palavra, bool verboso) {
 
 	// Percorre para cada caractere da palavra
 	for (size_t i = 0; i < tamanho_palavra; i++) {
-		if (verboso)
-			printf("Letra atual: %c\n", palavra[i]);
-
 		// Descobre o 'indice' que representa a letra atual da palavra
 		int indice_palavra = palavra[i] - 'a';
 
 		if (verboso)
-			printf("Indice: %d\n", indice_palavra);
+			printf("Letra atual: %c\nIndice: %d\n", palavra[i], indice_palavra);
 
 		// Caso esse indice nos filhos do nó atual esteja vazio, criamos ele
 		if (no_atual->filhos[indice_palavra] == NULL) {
 			if (verboso)
-				printf("No nulo, alocando memoria...\n");
+				printf("No nulo encontrado, alocando memoria...\n");
 
 			// Nó para representar cada letra da palavra
 			no_atual->filhos[indice_palavra] = criar_no();
@@ -332,9 +326,10 @@ void exibir_todas_palavras(NoTrie *raiz, bool verboso) {
 }
 
 size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t nivel, size_t tamanho, bool verboso) {
-	if (verboso) {
-		printf("Nivel: %d\n", nivel);
-	}
+	char letra_atual = nivel ? palavra[nivel - 1] : ' ';
+
+	if (verboso)
+		printf("Nivel: %d, Letra atual: %c\n", nivel, letra_atual);
 
 	if (raiz == NULL) {
 		if (verboso) {
@@ -348,9 +343,8 @@ size_t obter_tamanho_maior_prefixo(NoTrie *raiz, const char *palavra, size_t niv
 	if (raiz->fim_palavra) {
 		tamanho = nivel;
 		
-		if (verboso) {
+		if (verboso)
 			printf("Fim da palavra encontrado, tamanho atual: %d\n", tamanho);
-		}
 	}
 
 	if (nivel == strlen(palavra)) {
